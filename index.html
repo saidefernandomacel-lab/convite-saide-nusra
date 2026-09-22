@@ -429,8 +429,10 @@
 <script>
   // ---------- WhatsApp / email links (kept out of markup so intent is explicit) ----------
   var waMessage = encodeURIComponent('Olá! Confirmo a minha presença no casamento de Saíde e Nusra, 28/11/2026 em Matola. ');
-  document.getElementById('whatsapp-btn').href = 'https://wa.me/?text=' + waMessage;
-  document.getElementById('email-btn').href = 'mailto:?subject=' + encodeURIComponent('Confirmação — Casamento de Saíde & Nusra') + '&body=' + waMessage;
+  var waNumber = '258866788158';
+  var rsvpEmail = 'saidefernando800@gmail.com';
+  document.getElementById('whatsapp-btn').href = 'https://wa.me/' + waNumber + '?text=' + waMessage;
+  document.getElementById('email-btn').href = 'mailto:' + rsvpEmail + '?subject=' + encodeURIComponent('Confirmação — Casamento de Saíde & Nusra') + '&body=' + waMessage;
 
   // ---------- countdown ----------
   var weddingDate = new Date('2026-11-28T14:00:00');
