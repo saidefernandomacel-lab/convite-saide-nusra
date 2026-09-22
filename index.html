@@ -22,6 +22,11 @@
     --env-kraft:  #C9AD84;
     --env-kraft-2:#B4966A;
     --env-seal:   #2F3B2A;
+    --glass:        rgba(255, 255, 255, 0.38);
+    --glass-strong: rgba(255, 255, 255, 0.58);
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --ease-spring:  cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-press:   cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   /* Convite pensado para ficar sempre claro (creme-verde),
@@ -72,6 +77,38 @@
     text-wrap: balance;
     color: var(--ink);
   }
+  /* Typography: size-specific tracking & leading (Apple principles) */
+  .bismillah {
+    letter-spacing: -0.03em;
+    line-height: 1.3;
+  }
+  .names {
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+  .together-line,
+  .invite-line,
+  .date-line,
+  .place,
+  .eyebrow,
+  .verse cite,
+  .detail-row .label,
+  .detail-row .value,
+  .detail-row .sub,
+  .rsvp p.lede,
+  .rsvp-note,
+  footer .thanks,
+  .countdown-head h2,
+  .countdown-head p {
+    letter-spacing: 0;
+  }
+  .tile .num {
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+  }
+  .tile .unit {
+    letter-spacing: 0.05em;
+  }
 
   a { color: inherit; }
 
@@ -106,7 +143,7 @@
   .reveal {
     opacity: 0;
     transform: translateY(16px);
-    transition: opacity 0.7s ease, transform 0.7s ease;
+    transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1), transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .reveal.in-view { opacity: 1; transform: none; }
 
@@ -233,11 +270,17 @@
     gap: 0.6rem;
   }
   .tile {
-    background: var(--cream-2);
-    border: 1px solid var(--line);
+    position: relative;
+    background: var(--glass);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border: 1px solid var(--glass-border);
+    border-top-color: rgba(255, 255, 255, 0.7);
     border-radius: 14px;
     padding: 0.8rem 0.3rem;
     text-align: center;
+    box-shadow: 0 8px 20px -12px var(--shadow);
+    transition: transform 0.3s var(--ease-spring);
   }
   .tile .num {
     display: block;
@@ -245,12 +288,21 @@
     font-size: 1.5rem;
     color: var(--maroon);
     font-variant-numeric: tabular-nums;
+    transition: opacity 0.2s ease, transform 0.35s var(--ease-spring);
   }
+  .tile .num.tick { transform: scale(1.16); }
   .tile .unit {
     font-size: 0.62rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--ink-soft);
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .tile {
+      background: var(--cream-2);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
   }
 
   /* ---------- details ---------- */
@@ -309,11 +361,42 @@
     font-weight: 600;
     letter-spacing: 0.02em;
     text-decoration: none;
-    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    transition: transform 0.12s var(--ease-press), box-shadow 0.12s var(--ease-press);
     border: 1px solid transparent;
+    position: relative;
+    overflow: hidden;
+    will-change: transform, box-shadow;
+    background-clip: padding-box;
   }
-  .btn:active { transform: scale(0.98); }
-  .btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+  /* Haptic feedback simulation on press - instant response */
+  .btn:active {
+    transform: scale(0.96);
+    transition-duration: 0.06s;
+  }
+  /* Enhanced hover state with subtle lift */
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+  /* Focus ring for accessibility */
+  .btn:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+  }
+  /* Material effect: subtle ripple on press (CSS-only approximation) */
+  .btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 40%);
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+    pointer-events: none;
+  }
+  .btn:active::after {
+    opacity: 0.4;
+    transition-duration: 0.1s;
+  }
+  /* Button variants */
   .btn-primary {
     background: var(--maroon);
     color: var(--cream);
@@ -349,8 +432,24 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; }
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+    }
     #petals { display: none; }
+    /* Gentle cross-fades instead of springs/slides/parallax */
+    .reveal {
+      transform: none !important;
+      transition: opacity 0.2s ease !important;
+    }
+    .btn, .btn:hover, .btn:active,
+    .tile {
+      transform: none !important;
+      transition: opacity 0.2s ease, background-color 0.2s ease !important;
+    }
+    .envelope-flap, .envelope-card {
+      transition: opacity 0.2s ease !important;
+    }
   }
 
   @media (min-width: 480px) {
@@ -369,7 +468,22 @@
     gap: 1.6rem;
     background: radial-gradient(ellipse at center, var(--cream) 45%, var(--cream-2) 100%);
     cursor: pointer;
-    transition: opacity 0.9s ease 0.35s, visibility 0.9s ease 0.35s;
+    overflow: hidden;
+    will-change: opacity, visibility;
+    transition: opacity 0.4s var(--ease-spring) 0.35s, visibility 0.4s var(--ease-spring) 0.35s;
+  }
+  .envelope-intro::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 40%);
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+    pointer-events: none;
+  }
+  .envelope-intro:active::after {
+    opacity: 0.4;
+    transition-duration: 0.1s;
   }
   .envelope-intro.opened {
     opacity: 0;
@@ -443,7 +557,8 @@
     text-align: center;
     box-shadow: 0 16px 30px -14px rgba(20, 14, 8, 0.45);
     transform: translateY(4%);
-    transition: transform 1.15s cubic-bezier(.22,1,.36,1) 0.55s;
+    transition: transform 1.15s var(--ease-spring) 0.55s;
+    will-change: transform;
     z-index: -1;
   }
   .envelope-card-names {
@@ -473,6 +588,7 @@
     transform-origin: top center;
     transform: rotateX(0deg);
     transition: transform 1.05s cubic-bezier(.65,0,.35,1) 0.15s;
+    will-change: transform;
     z-index: 3;
     backface-visibility: hidden;
   }
@@ -645,7 +761,21 @@
 
   // ---------- countdown ----------
   var weddingDate = new Date('2026-11-28T14:00:00');
+  var reduceMotionCountdown = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   function pad(n) { return String(n).padStart(2, '0'); }
+  function setTile(id, value) {
+    var el = document.getElementById(id);
+    var text = pad(value);
+    if (el.textContent === text) return;
+    el.textContent = text;
+    if (reduceMotionCountdown) return;
+    // Craft/delight: brief pulse only on the digit that actually changed
+    el.classList.remove('tick');
+    // Force reflow so the animation can retrigger on consecutive changes
+    void el.offsetWidth;
+    el.classList.add('tick');
+    setTimeout(function () { el.classList.remove('tick'); }, 350);
+  }
   function tickCountdown() {
     var now = new Date();
     var diff = weddingDate - now;
@@ -654,10 +784,10 @@
     var hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
     var mins = Math.floor((diff / (1000 * 60)) % 60);
     var secs = Math.floor((diff / 1000) % 60);
-    document.getElementById('cd-days').textContent = pad(days);
-    document.getElementById('cd-hours').textContent = pad(hours);
-    document.getElementById('cd-mins').textContent = pad(mins);
-    document.getElementById('cd-secs').textContent = pad(secs);
+    setTile('cd-days', days);
+    setTile('cd-hours', hours);
+    setTile('cd-mins', mins);
+    setTile('cd-secs', secs);
   }
   tickCountdown();
   setInterval(tickCountdown, 1000);
@@ -768,8 +898,6 @@
     if (reduceMotion) {
       open();
       intro.style.display = 'none';
-    } else {
-      setTimeout(open, 1700);
     }
   })();
 </script>
