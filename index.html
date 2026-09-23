@@ -19,9 +19,10 @@
     --gold-soft:  #D9C08B;
     --line:       rgba(110, 31, 34, 0.22);
     --shadow:     rgba(58, 38, 32, 0.12);
-    --env-kraft:  #C9AD84;
-    --env-kraft-2:#B4966A;
-    --env-seal:   #2F3B2A;
+    --env-taupe:      #C9BCA8;
+    --env-taupe-2:    #B3A488;
+    --env-taupe-deep: #86765A;
+    --env-gold-line:  #B8956B;
     --glass:        rgba(255, 255, 255, 0.38);
     --glass-strong: rgba(255, 255, 255, 0.58);
     --glass-border: rgba(255, 255, 255, 0.5);
@@ -499,10 +500,10 @@
   }
   .envelope {
     position: relative;
-    width: min(92vw, 400px);
-    aspect-ratio: 1.45;
+    width: min(74vw, 300px);
+    aspect-ratio: 0.66;
     perspective: 1600px;
-    filter: drop-shadow(0 30px 34px rgba(20, 14, 8, 0.32)) drop-shadow(0 6px 10px rgba(20, 14, 8, 0.18));
+    filter: drop-shadow(0 26px 30px rgba(30, 24, 16, 0.30)) drop-shadow(0 6px 10px rgba(30, 24, 16, 0.16));
     transition: transform 0.5s var(--ease-out), filter 0.5s var(--ease-out);
   }
   /* Anticipation: a small squeeze on tap, before anything opens */
@@ -512,15 +513,15 @@
   }
   .envelope-intro.opened .envelope {
     transform: scale(1.02);
-    filter: drop-shadow(0 40px 46px rgba(20, 14, 8, 0.36)) drop-shadow(0 10px 18px rgba(20, 14, 8, 0.22));
+    filter: drop-shadow(0 34px 38px rgba(30, 24, 16, 0.34)) drop-shadow(0 9px 15px rgba(30, 24, 16, 0.2));
   }
   .envelope-back {
     position: absolute;
     inset: 0;
-    border-radius: 5px;
+    border-radius: 4px;
     background:
-      radial-gradient(120% 90% at 28% 0%, rgba(255,255,255,0.22), transparent 55%),
-      linear-gradient(172deg, var(--env-kraft) 0%, var(--env-kraft-2) 78%, #9c7c50 100%);
+      radial-gradient(120% 70% at 30% 0%, rgba(255,255,255,0.28), transparent 55%),
+      linear-gradient(178deg, var(--env-taupe) 0%, var(--env-taupe-2) 72%, var(--env-taupe-deep) 100%);
     overflow: hidden;
   }
   .envelope-back::before {
@@ -534,32 +535,90 @@
     mix-blend-mode: overlay;
   }
   .envelope-back::after {
-    /* vincos diagonais sutis das abas laterais/inferior dobradas */
+    /* vinco sutil do bolso interno */
     content: '';
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(122deg, transparent 47%, rgba(40, 26, 12, 0.10) 50%, transparent 53%),
-      linear-gradient(58deg, transparent 47%, rgba(40, 26, 12, 0.10) 50%, transparent 53%),
-      linear-gradient(180deg, transparent 88%, rgba(40, 26, 12, 0.14) 100%);
+      linear-gradient(128deg, transparent 60%, rgba(50, 40, 25, 0.09) 63%, transparent 66%),
+      linear-gradient(52deg, transparent 60%, rgba(50, 40, 25, 0.09) 63%, transparent 66%);
   }
-  .envelope-leaf {
+  .envelope-corner {
     position: absolute;
-    left: -2%;
-    bottom: -9%;
-    width: 44%;
-    height: auto;
-    opacity: 0.97;
-    z-index: 5;
+    width: 34px;
+    height: 34px;
+    color: var(--env-gold-line);
+    opacity: 0.85;
+    z-index: 6;
     pointer-events: none;
-    filter: drop-shadow(0 3px 4px rgba(20, 14, 8, 0.2));
+  }
+  .envelope-corner.tl { top: 8px; left: 8px; }
+  .envelope-corner.tr { top: 8px; right: 8px; transform: scaleX(-1); }
+  .envelope-corner.bl { bottom: 8px; left: 8px; transform: scaleY(-1); }
+  .envelope-corner.br { bottom: 8px; right: 8px; transform: scale(-1, -1); }
+  /*
+    Nota técnica: nada aqui pode ter `transition`/`transform`/`filter` como
+    propriedade ESTÁTICA num ancestral entre .ef-red (mix-blend-mode) e o
+    fundo taupe que ele precisa enxergar (.envelope-flap / .envelope-back).
+    Qualquer uma dessas propriedades promove o ancestral para uma camada de
+    composição isolada no Chromium, e o blend passa a ver só transparência —
+    a rosa vermelha volta a mostrar o retângulo branco original da foto.
+    Por isso o fade de abertura usa só `opacity` (nunca `transform`) nestes
+    wrappers, e o espelhamento do canto inferior-direito é feito nas
+    imagens individualmente, não no contentor.
+
+    Pela mesma razão, estas camadas usam ordem no DOM (não z-index) para
+    ficar acima da aba: dar-lhes um z-index explícito MAIOR que o da aba
+    também força essa promoção e quebra o blend — mesmo sem transition,
+    transform ou filter. Por isso .envelope-flap não tem z-index próprio
+    e esta camada vem depois dela no HTML.
+  */
+  .envelope-flowers-tl,
+  .envelope-flowers-br {
+    position: absolute;
+    width: 56%;
+    aspect-ratio: 1;
+    pointer-events: none;
+    transition: opacity 0.4s var(--ease-out) 0.05s;
+  }
+  .envelope-flowers-tl { top: -1%; left: -2%; }
+  .envelope-flowers-br { bottom: -1%; right: -2%; }
+  .ef-red-crop {
+    position: absolute;
+    overflow: hidden;
+    width: 88%;
+    height: 56%;
+    top: 6%;
+    left: 6%;
+  }
+  .ef-red {
+    position: absolute;
+    width: 210%;
+    left: -55%;
+    top: -34%;
+    mix-blend-mode: multiply;
+  }
+  .ef-white {
+    position: absolute;
+    width: 52%;
+    left: 40%;
+    top: 27%;
+    filter: drop-shadow(0 4px 8px rgba(40, 30, 15, 0.3));
+  }
+  .envelope-flowers-br .ef-red,
+  .envelope-flowers-br .ef-white {
+    transform: scaleX(-1);
+  }
+  .envelope-intro.opened .envelope-flowers-tl,
+  .envelope-intro.opened .envelope-flowers-br {
+    opacity: 0;
   }
   .envelope-card {
     position: absolute;
-    left: 8%;
-    right: 8%;
-    top: 5%;
-    height: 90%;
+    left: 9%;
+    right: 9%;
+    top: 6%;
+    height: 88%;
     background:
       linear-gradient(155deg, rgba(255,255,255,0.5), transparent 30%),
       var(--cream);
@@ -569,8 +628,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.3rem;
-    padding: 0.7rem;
+    gap: 0.4rem;
+    padding: 1rem;
     text-align: center;
     box-shadow: 0 16px 30px -14px rgba(20, 14, 8, 0.45);
     transform: translateY(4%) scale(0.97);
@@ -582,11 +641,11 @@
     font-family: 'Fraunces', serif;
     font-style: italic;
     color: var(--maroon);
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     margin: 0;
   }
   .envelope-card-sub {
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--ink-soft);
@@ -597,47 +656,42 @@
     left: 0;
     right: 0;
     top: 0;
-    height: 57%;
-    clip-path: polygon(0 0, 100% 0, 51% 88%, 49% 88%);
+    height: 44%;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
     background:
-      linear-gradient(200deg, var(--env-kraft) 0%, var(--env-kraft-2) 70%, #8f7048 100%);
-    box-shadow: inset 0 -16px 18px -14px rgba(20, 14, 8, 0.4);
+      linear-gradient(170deg, var(--env-taupe) 0%, var(--env-taupe-2) 78%, var(--env-taupe-deep) 100%);
+    box-shadow: inset 0 -14px 20px -16px rgba(40, 32, 20, 0.4);
     transform-origin: top center;
     transform: rotateX(0deg);
     transition: transform 0.55s var(--ease-in-out) 0.08s;
     will-change: transform;
-    z-index: 3;
     backface-visibility: hidden;
   }
   .envelope-seal {
     position: absolute;
     left: 50%;
-    top: 55%;
+    top: 44%;
     transform: translate(-50%, -50%);
-    width: 58px;
-    height: 58px;
-    border-radius: 42% 58% 54% 46% / 46% 42% 58% 54%;
-    background: radial-gradient(circle at 34% 28%, #55684a, var(--env-seal) 55%, #1c2415 100%);
-    color: var(--gold-soft);
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 32% 26%, #DED2BD 0%, var(--env-taupe-2) 55%, var(--env-taupe-deep) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Fraunces', serif;
-    font-style: italic;
-    font-size: 0.9rem;
-    box-shadow: 0 7px 14px -6px rgba(0,0,0,0.55), inset 0 2px 3px rgba(255,255,255,0.28);
+    box-shadow:
+      0 6px 12px -6px rgba(40, 32, 20, 0.4),
+      inset 0 2px 3px rgba(255, 255, 255, 0.4),
+      inset 0 -4px 6px rgba(50, 40, 24, 0.3);
     z-index: 4;
   }
-  .envelope-seal::after {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    left: 42%;
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    background: inherit;
-    opacity: 0.85;
+  .envelope-seal svg {
+    width: 58%;
+    height: 58%;
+  }
+  .envelope-seal svg path {
+    stroke: var(--env-taupe-deep);
+    opacity: 0.55;
   }
   /* Seal cracks open first, flicks up and away — reads as the cause of the flap opening */
   @keyframes seal-crack {
@@ -665,34 +719,56 @@
 <div id="envelope-intro" class="envelope-intro" role="button" tabindex="0" aria-label="Toque para abrir o convite">
   <div class="envelope">
     <div class="envelope-back"></div>
+
+    <!-- A aba vem antes das flores no DOM de propósito: ambas ficam em
+         z-index:auto e dependem da ordem no DOM para empilhar (ver nota
+         acima da .envelope-flowers-tl) — inverter a ordem aqui esconde
+         as flores atrás da aba, e um z-index explícito quebra o blend. -->
+    <div class="envelope-flap"></div>
+
+    <div class="envelope-flowers-tl">
+      <div class="ef-red-crop"><img class="ef-red" src="assets/red-rose.jpg" alt=""></div>
+      <img class="ef-white" src="assets/white-rose.png" alt="">
+    </div>
+    <div class="envelope-flowers-br">
+      <div class="ef-red-crop"><img class="ef-red" src="assets/red-rose.jpg" alt=""></div>
+      <img class="ef-white" src="assets/white-rose.png" alt="">
+    </div>
+
     <div class="envelope-card">
       <p class="envelope-card-names">Saíde &amp; Nusra</p>
       <p class="envelope-card-sub">28 · 11 · 2026</p>
     </div>
-    <div class="envelope-flap"></div>
-    <div class="envelope-seal">S&amp;N</div>
-    <svg class="envelope-leaf" viewBox="0 0 120 110" aria-hidden="true">
-      <path d="M6 106 C 20 84, 30 60, 38 40 C 42 30, 46 26, 50 28" fill="none" stroke="#5C6B4A" stroke-width="2.2" stroke-linecap="round"/>
-      <path d="M50 28 C 58 22, 68 19, 80 22" fill="none" stroke="#5C6B4A" stroke-width="2" stroke-linecap="round"/>
-      <ellipse cx="14" cy="92" rx="7" ry="13" fill="#6E7F52" transform="rotate(28 14 92)"/>
-      <ellipse cx="26" cy="74" rx="6.5" ry="12" fill="#7C8E5C" transform="rotate(42 26 74)"/>
-      <ellipse cx="36" cy="54" rx="6" ry="10" fill="#6E7F52" transform="rotate(14 36 54)"/>
-      <g transform="translate(50 28)">
-        <ellipse cx="0" cy="-13" rx="6" ry="12" fill="#F7F3E6" stroke="#C9BE9E" stroke-width="0.8"/>
-        <ellipse cx="0" cy="-13" rx="6" ry="12" fill="#F7F3E6" stroke="#C9BE9E" stroke-width="0.8" transform="rotate(72)"/>
-        <ellipse cx="0" cy="-13" rx="6" ry="12" fill="#F7F3E6" stroke="#C9BE9E" stroke-width="0.8" transform="rotate(144)"/>
-        <ellipse cx="0" cy="-13" rx="6" ry="12" fill="#F7F3E6" stroke="#C9BE9E" stroke-width="0.8" transform="rotate(216)"/>
-        <ellipse cx="0" cy="-13" rx="6" ry="12" fill="#F7F3E6" stroke="#C9BE9E" stroke-width="0.8" transform="rotate(288)"/>
-        <circle r="3.2" fill="#D9C08B"/>
-      </g>
-      <g transform="translate(80 22) scale(0.68)">
-        <ellipse cx="0" cy="-13" rx="6" ry="12" fill="#F7F3E6" stroke="#C9BE9E" stroke-width="0.8"/>
-        <ellipse cx="0" cy="-13" rx="6" ry="12" fill="#F7F3E6" stroke="#C9BE9E" stroke-width="0.8" transform="rotate(72)"/>
-        <ellipse cx="0" cy="-13" rx="6" ry="12" fill="#F7F3E6" stroke="#C9BE9E" stroke-width="0.8" transform="rotate(144)"/>
-        <ellipse cx="0" cy="-13" rx="6" ry="12" fill="#F7F3E6" stroke="#C9BE9E" stroke-width="0.8" transform="rotate(216)"/>
-        <ellipse cx="0" cy="-13" rx="6" ry="12" fill="#F7F3E6" stroke="#C9BE9E" stroke-width="0.8" transform="rotate(288)"/>
-        <circle r="3.2" fill="#D9C08B"/>
-      </g>
+
+    <div class="envelope-seal">
+      <svg viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke-linecap="round">
+        <path d="M20 33 L20 9" stroke-width="1.3"/>
+        <path d="M20 25 C15 23 11 19 11 14" stroke-width="1.1"/>
+        <path d="M20 25 C25 23 29 19 29 14" stroke-width="1.1"/>
+        <path d="M20 17 C16 15 13 11 14 7" stroke-width="1"/>
+        <path d="M20 17 C24 15 27 11 26 7" stroke-width="1"/>
+      </svg>
+    </div>
+
+    <svg class="envelope-corner tl" viewBox="0 0 40 40" fill="none" stroke="currentColor" aria-hidden="true">
+      <path d="M3 22 Q3 3 22 3" stroke-width="1"/>
+      <circle cx="22" cy="3" r="1.6" fill="currentColor" stroke="none"/>
+      <circle cx="3" cy="22" r="1.6" fill="currentColor" stroke="none"/>
+    </svg>
+    <svg class="envelope-corner tr" viewBox="0 0 40 40" fill="none" stroke="currentColor" aria-hidden="true">
+      <path d="M3 22 Q3 3 22 3" stroke-width="1"/>
+      <circle cx="22" cy="3" r="1.6" fill="currentColor" stroke="none"/>
+      <circle cx="3" cy="22" r="1.6" fill="currentColor" stroke="none"/>
+    </svg>
+    <svg class="envelope-corner bl" viewBox="0 0 40 40" fill="none" stroke="currentColor" aria-hidden="true">
+      <path d="M3 22 Q3 3 22 3" stroke-width="1"/>
+      <circle cx="22" cy="3" r="1.6" fill="currentColor" stroke="none"/>
+      <circle cx="3" cy="22" r="1.6" fill="currentColor" stroke="none"/>
+    </svg>
+    <svg class="envelope-corner br" viewBox="0 0 40 40" fill="none" stroke="currentColor" aria-hidden="true">
+      <path d="M3 22 Q3 3 22 3" stroke-width="1"/>
+      <circle cx="22" cy="3" r="1.6" fill="currentColor" stroke="none"/>
+      <circle cx="3" cy="22" r="1.6" fill="currentColor" stroke="none"/>
     </svg>
   </div>
   <p class="envelope-hint">Toque para abrir</p>
